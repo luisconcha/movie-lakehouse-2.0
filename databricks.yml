@@ -1,0 +1,33 @@
+bundle:
+  name: movie-lakehouse-2.0
+
+variables:
+  catalog:
+    description: Catalog Unity Catalog consumido pela aplicação
+
+  bronze_schema:
+    description: Schema Bronze consumido pela aplicação
+
+  silver_schema:
+    description: Schema Silver consumido pela aplicação
+
+  gold_schema:
+    description: Schema Gold consumido pela aplicação
+
+  raw_volume:
+    description: Volume contendo os arquivos raw consumidos pela aplicação
+
+targets:
+  dev:
+    default: true
+    mode: development
+
+    workspace:
+      host: https://adb-7405610975761863.3.azuredatabricks.net
+
+    variables:
+      catalog: movielakehouse
+      bronze_schema: bronze
+      silver_schema: silver
+      gold_schema: gold
+      raw_volume: raw
