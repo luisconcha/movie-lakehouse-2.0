@@ -6,7 +6,7 @@ será definida na etapa apropriada de deployment.
 
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 
 @dataclass(frozen=True)
@@ -30,6 +30,9 @@ class AppConfig:
         ):
             if value is not None:
                 self._validate_value(field_name, value)
+
+    def as_dict(self) -> dict[str, str | None]:
+        return asdict(self)
 
     @staticmethod
     def _validate_value(name: str, value: str) -> None:
