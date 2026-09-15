@@ -1,4 +1,4 @@
-""" Contratos estruturais de dados do movie-lakehouse-2.0 """
+"""Contratos estruturais de dados do movie-lakehouse-2.0"""
 
 from dataclasses import dataclass
 
@@ -29,72 +29,59 @@ class DataContract:
 # Bronze
 # --------------------------------------------------
 
-BRONZE_MOVIES_SOURCE_FIELDS = (
-    "budget",
-    "genres",
-    "homepage",
-    "id",
-    "keywords",
-    "original_language",
-    "original_title",
-    "overview",
-    "popularity",
-    "production_companies",
-    "production_countries",
-    "release_date",
-    "revenue",
-    "runtime",
-    "spoken_languages",
-    "status",
-    "tagline",
-    "title",
-    "vote_average",
-    "vote_count",
-)
-
-BRONZE_CREDITS_SOURCE_FIELDS = (
-    "movie_id",
-    "title",
-    "cast",
-    "crew",
-)
-
-
-def _bronze_schema(source_fields: tuple[str, ...]) -> StructType:
-    """monta schema Bronze preservando campos de origem como STRING"""
-
-    return StructType(
-        [
-            *[
-                StructField(field_name, StringType(), nullable=True)
-                for field_name in source_fields
-            ],
-            StructField("_source_file", StringType(), nullable=False),
-            StructField("_ingested_at", TimestampType(), nullable=False),
-            StructField("_ingestion_id", StringType(), nullable=False),
-        ]
-    )
-
-
 BRONZE_MOVIES = DataContract(
     name="movies",
     grain="uma linha recebida da fonte movies",
     key=("id",),
-    schema=_bronze_schema(BRONZE_MOVIES_SOURCE_FIELDS),
+    schema=StructType(
+        [
+            StructField("budget", StringType(), nullable=True),
+            StructField("genres", StringType(), nullable=True),
+            StructField("homepage", StringType(), nullable=True),
+            StructField("id", StringType(), nullable=True),
+            StructField("keywords", StringType(), nullable=True),
+            StructField("original_language", StringType(), nullable=True),
+            StructField("original_title", StringType(), nullable=True),
+            StructField("overview", StringType(), nullable=True),
+            StructField("popularity", StringType(), nullable=True),
+            StructField("production_companies", StringType(), nullable=True),
+            StructField("production_countries", StringType(), nullable=True),
+            StructField("release_date", StringType(), nullable=True),
+            StructField("revenue", StringType(), nullable=True),
+            StructField("runtime", StringType(), nullable=True),
+            StructField("spoken_languages", StringType(), nullable=True),
+            StructField("status", StringType(), nullable=True),
+            StructField("tagline", StringType(), nullable=True),
+            StructField("title", StringType(), nullable=True),
+            StructField("vote_average", StringType(), nullable=True),
+            StructField("vote_count", StringType(), nullable=True),
+            StructField("_source_file", StringType(), nullable=True),
+            StructField("_ingested_at", TimestampType(), nullable=True),
+            StructField("_ingestion_id", StringType(), nullable=True),
+        ]
+    ),
 )
 
 BRONZE_CREDITS = DataContract(
     name="credits",
     grain="uma linha recebida da fonte credits",
     key=("movie_id",),
-    schema=_bronze_schema(BRONZE_CREDITS_SOURCE_FIELDS),
+    schema=StructType(
+        [
+            StructField("movie_id", StringType(), nullable=True),
+            StructField("title", StringType(), nullable=True),
+            StructField("cast", StringType(), nullable=True),
+            StructField("crew", StringType(), nullable=True),
+            StructField("_source_file", StringType(), nullable=True),
+            StructField("_ingested_at", TimestampType(), nullable=True),
+            StructField("_ingestion_id", StringType(), nullable=True),
+        ]
+    ),
 )
 
-
-# --------------------------------------------------
+# -----------------------------------------
 # Silver
-# --------------------------------------------------
-
+# -----------------------------------------
 SILVER_MOVIE = DataContract(
     name="movie",
     grain="uma linha por movie_id",
@@ -228,10 +215,9 @@ SILVER_CREW_CREDIT = DataContract(
     ),
 )
 
-
-# --------------------------------------------------
+# --------------------------------------
 # Gold
-# --------------------------------------------------
+# --------------------------------------
 
 _GOLD_MOVIE_METRIC_FIELDS = (
     StructField("title", StringType(), nullable=False),
@@ -246,7 +232,6 @@ _GOLD_MOVIE_METRIC_FIELDS = (
     StructField("vote_average", DoubleType(), nullable=False),
     StructField("vote_count", LongType(), nullable=False),
 )
-
 
 GOLD_MOVIE_PERFORMANCE = DataContract(
     name="movie_performance",
@@ -364,7 +349,6 @@ GOLD_MOVIE_CREDIT_PARTICIPATION = DataContract(
         ]
     ),
 )
-
 
 BRONZE_CONTRACTS = (
     BRONZE_MOVIES,
