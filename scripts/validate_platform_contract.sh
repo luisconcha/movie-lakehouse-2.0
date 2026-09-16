@@ -51,9 +51,14 @@ PY
 
 CATALOG="$(read_bundle_variable catalog)"
 BRONZE_SCHEMA="$(read_bundle_variable bronze_schema)"
+SILVER_SCHEMA="$(read_bundle_variable silver_schema)"
+GOLD_SCHEMA="$(read_bundle_variable gold_schema)"
 RAW_VOLUME="$(read_bundle_variable raw_volume)"
 
 BRONZE_NAMESPACE="${CATALOG}.${BRONZE_SCHEMA}"
+SILVER_NAMESPACE="${CATALOG}.${SILVER_SCHEMA}"
+GOLD_NAMESPACE="${CATALOG}.${GOLD_SCHEMA}"
+
 RAW_VOLUME_FULL_NAME="${BRONZE_NAMESPACE}.${RAW_VOLUME}"
 RAW_VOLUME_PATH="dbfs:/Volumes/${CATALOG}/${BRONZE_SCHEMA}/${RAW_VOLUME}"
 
@@ -61,6 +66,8 @@ echo
 echo "Configuração resolvida:"
 echo "  Catalog:    ${CATALOG}"
 echo "  Bronze:     ${BRONZE_NAMESPACE}"
+echo "  Silver:     ${SILVER_NAMESPACE}"
+echo "  Gold:       ${GOLD_NAMESPACE}"
 echo "  Raw volume: ${RAW_VOLUME_FULL_NAME}"
 
 echo
@@ -73,15 +80,40 @@ databricks catalogs get \
 
 echo "OK: catálogo '${CATALOG}' acessível."
 
-echo
-echo "--> Validando schema Bronze"
 
-databricks schemas get \
-  "${BRONZE_NAMESPACE}" \
-  --profile "${PROFILE}" \
-  --output json >/dev/null
+validate_schema() {
+  local namespace="$1"
 
-echo "OK: schema '${BRONZE_NAMESPACE}' acessível."
+  echo
+  echo "--> Validando schema '${namespace}'"
+
+  if ! databricks schemas get \
+    "${namespace}" \
+    --profile "${PROFILE}" \
+    --output json >/dev/null 2>&1
+  then
+    echo "ERRO: schema '${namespace}' não está disponível."
+    echo
+    echo "A fundação da plataforma não atende ao contrato da aplicação."
+    echo "Responsabilidade: PLATAFORMA / BOOTSTRAP."
+    echo
+    echo "O responsável pela plataforma pode executar:"
+    echo
+    echo "  ./scripts/provision_platform_prerequisites.sh"
+    echo
+    echo "Depois, execute novamente:"
+    echo
+    echo "  ./scripts/validate_platform_contract.sh"
+    exit 1
+  fi
+
+  echo "OK: schema '${namespace}' acessível."
+}
+
+validate_schema "${BRONZE_NAMESPACE}"
+validate_schema "${SILVER_NAMESPACE}"
+validate_schema "${GOLD_NAMESPACE}"
+
 
 echo
 echo "--> Validando volume raw"
@@ -93,7 +125,7 @@ databricks volumes read \
 
 echo "OK: volume '${RAW_VOLUME_FULL_NAME}' acessível."
 
-echo
+
 echo
 echo "--> Validando arquivos raw"
 
