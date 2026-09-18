@@ -1,0 +1,36 @@
+resources:
+  jobs:
+    movie_lakehouse_job:
+      name: movie-lakehouse-2.0-${bundle.target}
+
+      queue:
+        enabled: true
+
+      tasks:
+        - task_key: bronze_ingestion
+          notebook_task:
+            notebook_path: ../notebooks/01_bronze/ingest_raw.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
+              bronze_schema: ${var.bronze_schema}
+              raw_volume: ${var.raw_volume}
+
+        - task_key: silver_transformation
+          depends_on:
+            - task_key: bronze_ingestion
+          notebook_task:
+            notebook_path: ../notebooks/02_silver/transform_silver.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
+              bronze_schema: ${var.bronze_schema}
+              silver_schema: ${var.silver_schema}
+
+        - task_key: gold_build
+          depends_on:
+            - task_key: silver_transformation
+          notebook_task:
+            notebook_path: ../notebooks/03_gold/build_gold.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
+              silver_schema: ${var.silver_schema}
+              gold_schema: ${var.gold_schema}

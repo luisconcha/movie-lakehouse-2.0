@@ -1,6 +1,9 @@
 bundle:
   name: movie-lakehouse-2.0
 
+include:
+  - resources/*.yml
+
 variables:
   catalog:
     description: Catalog Unity Catalog consumido pela aplicação
