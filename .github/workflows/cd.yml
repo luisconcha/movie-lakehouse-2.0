@@ -1,0 +1,44 @@
+name: CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: movie-lakehouse-dev-deploy
+  cancel-in-progress: false
+
+jobs:
+  cd:
+    name: Databricks CD
+    runs-on: ubuntu-latest
+
+    env:
+      DATABRICKS_AUTH_TYPE: github-oidc
+      DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Check Databricks CLI
+        run: databricks version
+
+      - name: Validate Databricks Bundle
+        run: databricks bundle validate -t dev
+
+      - name: Deploy Databricks Bundle
+        run: databricks bundle deploy -t dev
+
+      - name: Run movie lakehouse job
+        run: databricks bundle run -t dev movie_lakehouse_job
