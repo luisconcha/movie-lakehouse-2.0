@@ -3,7 +3,6 @@
 set -euo pipefail
 
 TARGET="dev"
-PROFILE="movie-lakehouse-2.0"
 
 echo "======================================"
 echo " Movie Lakehouse 2.0"
@@ -70,7 +69,7 @@ provision_schema() {
 
   if databricks schemas get \
     "${namespace}" \
-    --profile "${PROFILE}" \
+    --target "${TARGET}" \
     --output json >/dev/null 2>&1
   then
     echo "OK: schema '${namespace}' já existe."
@@ -83,7 +82,7 @@ provision_schema() {
   databricks schemas create \
     "${schema}" \
     "${CATALOG}" \
-    --profile "${PROFILE}" \
+    --target "${TARGET}" \
     --output json >/dev/null
 
   echo "OK: schema '${namespace}' criado."

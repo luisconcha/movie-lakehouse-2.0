@@ -25,11 +25,7 @@ targets:
     default: true
     mode: development
 
-    workspace:
-      host: https://adb-7405610975761863.3.azuredatabricks.net
-
     variables:
-      catalog: movielakehouse
       bronze_schema: bronze
       silver_schema: silver
       gold_schema: gold
