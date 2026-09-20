@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-PROFILE="movie-lakehouse-2.0"
+TARGET="dev"
 
 echo "======================================"
 echo " Movie Lakehouse 2.0"
@@ -36,21 +36,13 @@ fi
 databricks --version
 
 echo
-echo "--> Validando autenticação e comunicação com o workspace"
-echo "Profile esperado: ${PROFILE}"
+echo "--> Validando configuração, autenticação e comunicação do Bundle"
+echo "Target esperado: ${TARGET}"
 
-if ! databricks current-user me --profile "${PROFILE}"; then
+if ! databricks bundle validate -t "${TARGET}" >/dev/null; then
   echo
-  echo "ERRO: não foi possível autenticar ou comunicar com o workspace"
-  echo "usando o profile '${PROFILE}'."
-  echo
-  echo "Configure ou renove a autenticação com:"
-  echo
-  echo "  databricks auth login \\"
-  echo "    --host https://<HOST-DO-WORKSPACE-MOVIE-LAKEHOUSE-2.0> \\"
-  echo "    --profile ${PROFILE}"
-  echo
-  echo "Depois execute novamente este script."
+  echo "ERRO: não foi possível validar o Bundle no target '${TARGET}'."
+  echo "Verifique a configuração do target e a autenticação para o workspace correspondente."
   exit 1
 fi
 

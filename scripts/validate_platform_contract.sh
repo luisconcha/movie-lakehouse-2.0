@@ -3,7 +3,6 @@
 set -euo pipefail
 
 TARGET="dev"
-PROFILE="movie-lakehouse-2.0"
 
 echo "======================================"
 echo " Movie Lakehouse 2.0"
@@ -75,7 +74,7 @@ echo "--> Validando catálogo"
 
 databricks catalogs get \
   "${CATALOG}" \
-  --profile "${PROFILE}" \
+  --target "${TARGET}" \
   --output json >/dev/null
 
 echo "OK: catálogo '${CATALOG}' acessível."
@@ -89,7 +88,7 @@ validate_schema() {
 
   if ! databricks schemas get \
     "${namespace}" \
-    --profile "${PROFILE}" \
+    --target "${TARGET}" \
     --output json >/dev/null 2>&1
   then
     echo "ERRO: schema '${namespace}' não está disponível."
@@ -120,7 +119,7 @@ echo "--> Validando volume raw"
 
 databricks volumes read \
   "${RAW_VOLUME_FULL_NAME}" \
-  --profile "${PROFILE}" \
+  --target "${TARGET}" \
   --output json >/dev/null
 
 echo "OK: volume '${RAW_VOLUME_FULL_NAME}' acessível."
@@ -132,7 +131,7 @@ echo "--> Validando arquivos raw"
 RAW_FILES="$(
   databricks fs ls \
     "${RAW_VOLUME_PATH}" \
-    --profile "${PROFILE}"
+    --target "${TARGET}"
 )"
 
 for file in \
@@ -148,7 +147,7 @@ do
 
   databricks fs cat \
     "${FILE_PATH}" \
-    --profile "${PROFILE}" >/dev/null
+    --target "${TARGET}" >/dev/null
 
   echo "OK: '${file}' existe e é legível."
 done
